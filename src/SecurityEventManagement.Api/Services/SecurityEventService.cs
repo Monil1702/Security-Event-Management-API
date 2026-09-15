@@ -100,7 +100,7 @@ public sealed class SecurityEventService(SecurityDbContext db) : ISecurityEventS
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<SecurityEventResponse>(events.Select(Map).ToArray(), page, pageSize, totalCount);
+        return new PagedResult<SecurityEventResponse>(events.Select(x => Map(x)).ToArray(), page, pageSize, totalCount);
     }
 
     public async Task<SecurityEventResponse> AcknowledgeAsync(
