@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:8080
+@deviceId = replace-after-creating-device
+@eventId = replace-after-creating-event
+
+### Health
+GET {{baseUrl}}/health
+
+### List seeded devices
+GET {{baseUrl}}/api/v1/devices
+
+### Create a device
+POST {{baseUrl}}/api/v1/devices
+Content-Type: application/json
+X-Correlation-ID: demo-device-001
+
+{
+  "name": "East Entrance Reader",
+  "deviceType": "Access Controller",
+  "location": "Building A - East Entrance",
+  "ipAddress": "10.0.10.42",
+  "isOnline": true
+}
+
+### Create a security event
+POST {{baseUrl}}/api/v1/security-events
+Content-Type: application/json
+X-Correlation-ID: demo-event-001
+
+{
+  "deviceId": "{{deviceId}}",
+  "eventType": "AccessDenied",
+  "severity": "High",
+  "description": "Repeated access denial detected at the east entrance.",
+  "source": "access-controller",
+  "occurredAt": "2026-09-15T12:00:00Z"
+}
+
+### Filter open high-severity events
+GET {{baseUrl}}/api/v1/security-events?status=Open&severity=High&page=1&pageSize=20
+
+### Acknowledge an event
+POST {{baseUrl}}/api/v1/security-events/{{eventId}}/acknowledge
+Content-Type: application/json
+
+{
+  "acknowledgedBy": "security.operator"
+}
+
+### Resolve the acknowledged event
+POST {{baseUrl}}/api/v1/security-events/{{eventId}}/resolve
+Content-Type: application/json
+
+{
+  "resolutionNotes": "Badge permissions were corrected and access was verified."
+}
+
+### Operational summary
+GET {{baseUrl}}/api/v1/security-events/summary

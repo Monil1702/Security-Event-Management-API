@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore SecurityEventManagement.sln
+
+      - name: Verify formatting
+        run: dotnet format SecurityEventManagement.sln --no-restore --verify-no-changes
+
+      - name: Build
+        run: dotnet build SecurityEventManagement.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test SecurityEventManagement.sln --configuration Release --no-build --collect:"XPlat Code Coverage"
+
+      - name: Validate Docker Compose
+        run: POSTGRES_PASSWORD=ci-only docker compose config --quiet
