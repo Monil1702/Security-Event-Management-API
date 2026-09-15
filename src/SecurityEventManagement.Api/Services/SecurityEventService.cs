@@ -52,8 +52,7 @@ public sealed class SecurityEventService(SecurityDbContext db) : ISecurityEventS
         {
             throw new ResourceConflictException("A matching security event has already been received.");
         }
-        securityEvent.Device = device;
-        return Map(securityEvent);
+        return Map(securityEvent, device.Name);
     }
 
     public async Task<SecurityEventResponse> GetAsync(Guid id, CancellationToken cancellationToken)
@@ -184,10 +183,10 @@ public sealed class SecurityEventService(SecurityDbContext db) : ISecurityEventS
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)));
     }
 
-    private static SecurityEventResponse Map(SecurityEvent securityEvent) => new(
+    private static SecurityEventResponse Map(SecurityEvent securityEvent, string? deviceName = null) => new(
         securityEvent.Id,
         securityEvent.DeviceId,
-        securityEvent.Device?.Name ?? "Unknown device",
+        deviceName ?? securityEvent.Device?.Name ?? "Unknown device",
         securityEvent.EventType,
         securityEvent.Severity,
         securityEvent.Status,
