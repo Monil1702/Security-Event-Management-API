@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace SecurityEventManagement.Api.DTOs;
 
@@ -20,3 +21,10 @@ public sealed record SecurityDeviceResponse(
     bool IsOnline,
     DateTimeOffset? LastSeenAt,
     DateTimeOffset CreatedAt);
+
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
+public sealed class IpAddressAttribute : ValidationAttribute
+{
+    public override bool IsValid(object? value) =>
+        value is null || value is string address && IPAddress.TryParse(address, out _);
+}
